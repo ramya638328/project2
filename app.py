@@ -5,14 +5,15 @@ import os
 
 st.title("🎓 Student Grade Prediction")
 
-# Debug: show files in directory
+# Show files (for debugging)
 st.write("Files in directory:", os.listdir())
 
-MODEL_PATH = "decision_tree_model.pkl"
+# ✅ Correct model filename (matches your folder)
+MODEL_PATH = "Decision Tree.pkl"
 
-# Check file existence
+# Check model existence
 if not os.path.exists(MODEL_PATH):
-    st.error("Model file not found ❌")
+    st.error("Model file not found ❌ Please check file name")
     st.stop()
 
 # Load model
