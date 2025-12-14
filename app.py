@@ -1,38 +1,46 @@
 import streamlit as st
-import pickle
+import pandas as pd
 import numpy as np
-import os
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
 
 st.title("🎓 Student Grade Prediction")
 
-# Show files (for debugging)
-st.write("Files in directory:", os.listdir())
+# Load dataset
+df = pd.read_csv("StudentMarksDataset.csv")
 
-# ✅ Correct model filename (matches your folder)
-MODEL_PATH = "Decision Tree.pkl"
+def Grade_class(marks):
+    if marks >= 80:
+        return "A"
+    elif marks >= 70:
+        return "B"
+    else:
+        return "C"
 
-# Check model existence
-if not os.path.exists(MODEL_PATH):
-    st.error("Model file not found ❌ Please check file name")
-    st.stop()
+df["Grade"] = df["Std_Marks"].apply(Grade_class)
 
-# Load model
-with open(MODEL_PATH, "rb") as f:
-    model, le_branch, le_course, le_grade = pickle.load(f)
+le_branch = LabelEncoder()
+le_course = LabelEncoder()
+le_grade = LabelEncoder()
 
-# Inputs
+df["Std_Branch"] = le_branch.fit_transform(df["Std_Branch"])
+df["Std_Course"] = le_course.fit_transform(df["Std_Course"])
+df["Grade"] = le_grade.fit_transform(df["Grade"])
+
+X = df[["Std_Branch", "Std_Course", "Std_Marks"]]
+y = df["Grade"]
+
+model = DecisionTreeClassifier(criterion="entropy", max_depth=4)
+model.fit(X, y)
+
 branch = st.selectbox("Select Branch", le_branch.classes_)
 course = st.selectbox("Select Course", le_course.classes_)
 marks = st.slider("Enter Marks", 0, 100, 75)
 
-# Encode inputs
 branch_encoded = le_branch.transform([branch])[0]
 course_encoded = le_course.transform([course])[0]
 
-# Prediction
 if st.button("Predict Grade"):
-    input_data = np.array([[branch_encoded, course_encoded, marks]])
-    prediction = model.predict(input_data)
-    grade = le_grade.inverse_transform(prediction)
-
+    pred = model.predict([[branch_encoded, course_encoded, marks]])
+    grade = le_grade.inverse_transform(pred)
     st.success(f"Predicted Grade: {grade[0]}")
