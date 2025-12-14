@@ -1,7 +1,5 @@
-README.md
-Requirements.txt
-.git
-Decision Tree.pkl
-app.py
-StudentMarksDataset.csv
-.streamlit
+streamlit
+pandas
+scikit-learn
+numpy
+matplotlib
