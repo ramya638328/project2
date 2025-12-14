@@ -1,12 +1,23 @@
 import streamlit as st
 import pickle
 import numpy as np
+import os
+
+st.title("🎓 Student Grade Prediction")
+
+# Debug: show files in directory
+st.write("Files in directory:", os.listdir())
+
+MODEL_PATH = "decision_tree_model.pkl"
+
+# Check file existence
+if not os.path.exists(MODEL_PATH):
+    st.error("Model file not found ❌")
+    st.stop()
 
 # Load model
-with open("decision_tree_model.pkl", "rb") as f:
+with open(MODEL_PATH, "rb") as f:
     model, le_branch, le_course, le_grade = pickle.load(f)
-
-st.title("🎓 Student Grade Prediction App")
 
 # Inputs
 branch = st.selectbox("Select Branch", le_branch.classes_)
@@ -20,6 +31,7 @@ course_encoded = le_course.transform([course])[0]
 # Prediction
 if st.button("Predict Grade"):
     input_data = np.array([[branch_encoded, course_encoded, marks]])
-    pred = model.predict(input_data)
-    grade = le_grade.inverse_transform(pred)
+    prediction = model.predict(input_data)
+    grade = le_grade.inverse_transform(prediction)
+
     st.success(f"Predicted Grade: {grade[0]}")
